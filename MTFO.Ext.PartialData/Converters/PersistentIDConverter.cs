@@ -1,76 +1,29 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MTFO.Ext.PartialData.Converters
 {
-    public class PersistentIDConverter : JsonConverter
+    public class PersistentIDConverter : JsonConverter<uint>
     {
-        public Func<string, uint> SaveID;
-        public Func<string, uint> LoadID;
-
-        public override bool CanConvert(Type objectType)
+        public override uint Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return objectType == typeof(uint);
+            if (reader.TokenType == JsonTokenType.String)
+            {
+                return PersistentIDManager.GetId(reader.GetString());
+            }
+            else if (reader.TokenType == JsonTokenType.Number)
+            {
+                return reader.GetUInt32();
+            }
+            throw new JsonException($"TOKEN IS NOT VALID!");
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, uint value, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonToken.Null)
-            {
-                return null;
-            }
-
-            JToken token = JToken.Load(reader);
-            if (reader.TokenType == JsonToken.String)
-            {
-                var guidValue = token.ToObject<string>();
-                if (reader.Path.EndsWith("persistentID"))
-                {
-                    if (SaveID == null)
-                    {
-                        throw new Exception($"SaveID has not implemented!");
-                    }
-
-                    return SaveID.Invoke(guidValue);
-                }
-                else
-                {
-                    if (LoadID == null)
-                    {
-                        throw new Exception($"LoadID has not implemented!");
-                    }
-
-                    return LoadID.Invoke(guidValue);
-                }
-            }
-            else if (reader.TokenType == JsonToken.Integer)
-            {
-                return token.ToObject<uint>();
-            }
-
-            return null;
-        }
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            return;
-        }
-
-        public override bool CanRead
-        {
-            get
-            {
-                return true;
-            }
-        }
-
-        public override bool CanWrite
-        {
-            get
-            {
-                return false;
-            }
+            throw new NotImplementedException();
         }
     }
 }

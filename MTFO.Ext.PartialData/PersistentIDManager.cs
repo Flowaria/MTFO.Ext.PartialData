@@ -4,7 +4,7 @@ namespace MTFO.Ext.PartialData
 {
     public static class PersistentIDManager
     {
-        private static Dictionary<string, uint> _GUIDDict = new Dictionary<string, uint>();
+        private readonly static Dictionary<string, uint> _GUIDDict = new Dictionary<string, uint>();
 
         public static bool TryAssignId(string guid, uint id)
         {

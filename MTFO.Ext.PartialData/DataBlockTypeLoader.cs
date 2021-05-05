@@ -7,7 +7,7 @@ namespace MTFO.Ext.PartialData
 {
     public static class DataBlockTypeLoader
     {
-        private static List<DataBlockTypeCache> _DataBlockCache = new List<DataBlockTypeCache>();
+        private readonly static List<DataBlockTypeCache> _DataBlockCache = new List<DataBlockTypeCache>();
 
         static DataBlockTypeLoader()
         {
