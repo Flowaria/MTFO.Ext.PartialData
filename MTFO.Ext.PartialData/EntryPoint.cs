@@ -31,6 +31,7 @@ namespace MTFO.Ext.PartialData
             once = true;
 
             PartialDataManager.UpdatePartialData();
+            PartialDataManager.WriteToFile(Path.Combine(PartialDataManager.PartialDataPath, "persistentID.json"));
         }
     }
 }

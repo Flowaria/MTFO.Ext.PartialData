@@ -102,5 +102,21 @@ namespace MTFO.Ext.PartialData
             }
             return id;
         }
+
+        public static void WriteToFile(string path)
+        {
+            var text = "[\n";
+            foreach(var pair in _GUIDDict)
+            {
+                text += "\t{ \"GUID\": \"" + pair.Key + "\", \"ID\": \"" + pair.Value + "\"},\n";
+            }
+
+            if(text.Length > 2)
+            {
+                text = text[0..^2];
+            }
+            text += "\n]";
+            File.WriteAllText(path, text);
+        }
     }
 }

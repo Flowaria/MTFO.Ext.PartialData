@@ -9,7 +9,7 @@ namespace MTFO.Ext.PartialData.Utils
 {
     public static class JSON
     {
-        public static Internal_PersistentIDConverter IDConverter { get; private set; } = new Internal_PersistentIDConverter();
+        internal static Internal_PersistentIDConverter IDConverter { get; private set; } = new Internal_PersistentIDConverter();
 
         private readonly static JsonSerializerOptions _Setting = new JsonSerializerOptions()
         {
