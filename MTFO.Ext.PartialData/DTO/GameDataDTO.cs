@@ -6,6 +6,6 @@ namespace MTFO.Ext.PartialData.DTO
 {
     public class GameDataDTO
     {
-        public uint persistentID = 0;
+        public uint persistentID { get; set; } = 0;
     }
 }

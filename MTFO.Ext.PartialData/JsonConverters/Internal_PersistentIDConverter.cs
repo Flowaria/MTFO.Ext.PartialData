@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MTFO.Ext.PartialData.Converters
+namespace MTFO.Ext.PartialData.JsonConverters
 {
     internal class Internal_PersistentIDConverter : JsonConverter<uint>
     {

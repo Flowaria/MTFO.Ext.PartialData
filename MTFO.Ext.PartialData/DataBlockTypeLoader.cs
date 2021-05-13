@@ -1,4 +1,5 @@
 ﻿using GameData;
+using LevelGeneration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,9 @@ namespace MTFO.Ext.PartialData
 {
     public static class DataBlockTypeLoader
     {
+        private readonly static Type[] _HasBlockTypeFilter = new Type[] { typeof(uint) };
         private readonly static List<DataBlockTypeCache> _DataBlockCache = new List<DataBlockTypeCache>();
-
-        static DataBlockTypeLoader()
+        public static void CacheAll()
         {
             try
             {
@@ -42,17 +43,55 @@ namespace MTFO.Ext.PartialData
                 foreach (var type in dataBlockTypes)
                 {
                     var genericType = genericBaseType.MakeGenericType(type);
-                    _DataBlockCache.Add(new DataBlockTypeCache()
+                    var cache = new DataBlockTypeCache()
                     {
                         TypeName = type.Name,
                         SerializeType = type,
-                        AddBlockMethod = genericType.GetMethod("AddBlock")
-                    });
+                        AddBlockMethod = genericType.GetMethod("AddBlock"),
+                        GetBlockMethod = genericType.GetMethod("GetBlock", _HasBlockTypeFilter)
+                    };
+                    AssignForceChangeMethod(cache);
+                    _DataBlockCache.Add(cache);
                 }
             }
             catch (Exception e)
             {
                 Logger.Error($"Can't make cache from Modules-ASM.dll!: {e}");
+            }
+        }
+
+        public static void AssignForceChangeMethod(DataBlockTypeCache blockTypeCache)
+        {
+            //TODO: Better Support
+
+            switch(blockTypeCache.TypeName.ToLower())
+            {
+                case "fogsettingsdatablock":
+                    blockTypeCache.OnForceChange = () =>
+                    {
+
+                        var set = EnvironmentStateManager.Current.m_stateReplicator.m_currentState.FogState.FogDataID;
+                        EnvironmentStateManager.SetFogSettingsLocal(set);
+                    };
+                    break;
+
+                case "lightsettingsdatablock":
+                    blockTypeCache.OnForceChange = () =>
+                    {
+                        if (!Builder.CurrentFloor.IsBuilt)
+                        {
+                            return;
+                        }
+
+                        foreach (var zone in Builder.CurrentFloor.allZones)
+                        {
+                            foreach (var node in zone.m_courseNodes)
+                            {
+                                LG_BuildZoneLightsJob.ApplyLightSettings(node.m_lightsInNode, zone.m_lightSettings, false);
+                            }
+                        }
+                    };
+                    break;
             }
         }
 

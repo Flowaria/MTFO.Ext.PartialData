@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml;
 
-namespace MTFO.Ext.PartialData.Converters
+namespace MTFO.Ext.PartialData.JsonConverters
 {
    using Il2CppCollections = Il2CppSystem.Collections.Generic;
 

@@ -1,4 +1,4 @@
-﻿using MTFO.Ext.PartialData.Converters;
+﻿using MTFO.Ext.PartialData.JsonConverters;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,7 +14,8 @@ namespace MTFO.Ext.PartialData.Utils
         private readonly static JsonSerializerOptions _Setting = new JsonSerializerOptions()
         {
             ReadCommentHandling = JsonCommentHandling.Skip,
-            IncludeFields = true
+            IncludeFields = true,
+            AllowTrailingCommas = true
         };
 
         static JSON()

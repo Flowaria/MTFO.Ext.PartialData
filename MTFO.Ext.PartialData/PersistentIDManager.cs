@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace MTFO.Ext.PartialData
 {
@@ -26,6 +27,22 @@ namespace MTFO.Ext.PartialData
                 return 0;
             }
             return id;
+        }
+
+        public static void WriteToFile(string path)
+        {
+            var text = "[\n\t//AUTO-GENERATED PERSISTENT ID LIST\n";
+            foreach (var pair in _GUIDDict)
+            {
+                text += "\t{ \"GUID\": \"" + pair.Key + "\", \"ID\": " + pair.Value + " },\n";
+            }
+
+            if (text.Length > 2)
+            {
+                text = text[0..^2];
+            }
+            text += "\n]";
+            File.WriteAllText(path, text);
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MTFO.Ext.PartialData.Converters
+namespace MTFO.Ext.PartialData.JsonConverters
 {
     public class PersistentIDConverter : JsonConverter<uint>
     {

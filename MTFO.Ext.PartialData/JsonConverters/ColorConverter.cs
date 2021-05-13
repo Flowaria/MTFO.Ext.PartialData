@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using UnityEngine;
 
-namespace MTFO.Ext.PartialData.Converters
+namespace MTFO.Ext.PartialData.JsonConverters
 {
     public class ColorConverter : JsonConverter<Color>
     {
