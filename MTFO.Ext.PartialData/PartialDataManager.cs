@@ -135,6 +135,7 @@ namespace MTFO.Ext.PartialData
             {
                 if (!DataBlockTypeLoader.TryFindCache(info.TypeName, out info.TypeCache))
                 {
+                    Logger.Warning($"TypeName: {info.TypeName} is not valid DataBlockType!");
                     _BlockFileInfos.Remove(info);
                 }
             }
