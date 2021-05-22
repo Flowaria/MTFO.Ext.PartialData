@@ -9,7 +9,7 @@ namespace MTFO.Ext.PartialData.JsonConverters
 {
    using Il2CppCollections = Il2CppSystem.Collections.Generic;
 
-    public class Il2CppListReadOnlyConverter<T> : JsonConverter<Il2CppCollections.List<T>>
+    public class Il2CppListConverter<T> : JsonConverter<Il2CppCollections.List<T>>
     {
         public override bool HandleNull => false;
 
@@ -30,7 +30,12 @@ namespace MTFO.Ext.PartialData.JsonConverters
 
         public override void Write(Utf8JsonWriter writer, Il2CppCollections.List<T> value, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
+            writer.WriteStartArray();
+            foreach(var i in value)
+            {
+                JsonSerializer.Serialize(writer, i, options);
+            }
+            writer.WriteEndArray();
         }
     }
 }

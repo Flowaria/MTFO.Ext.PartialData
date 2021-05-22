@@ -5,15 +5,20 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Collections.Generic;
+using GameData;
+using LevelGeneration;
 
 namespace MTFO.Ext.PartialData
 {
-    public class DataBlockTypeCache
+    public partial class DataBlockTypeWrapper
     {
-        public string TypeName;
-        public Type SerializeType;
-        public MethodInfo AddBlockMethod;
-        public MethodInfo GetBlockMethod;
+        public string TypeName { get; private set; }
+        public Type SerializeType { get; private set; }
+        public MethodInfo AddBlockMethod { get; private set; }
+        public MethodInfo GetBlockMethod { get; private set; }
+        public MethodInfo DoSaveToDiskMethod { get; private set; }
+        public PropertyInfo FullPathProperty { get; private set; }
         public Action OnForceChange;
 
         public void ForceApplyChange()
@@ -72,15 +77,25 @@ namespace MTFO.Ext.PartialData
             }
         }
 
+        public void WriteAllToFile(string fullPath)
+        {
+            var oldPath = FullPathProperty.GetValue(null);
+            FullPathProperty.SetValue(null, fullPath);
+
+            DoSaveToDiskMethod?.Invoke(null, new object[] { false, false });
+
+            FullPathProperty.SetValue(null, oldPath);
+        }
+
         private static object CopyProperties(object source, object target)
         {
-            foreach (var sProp in source.GetType().GetProperties())
+            foreach (var sourceProp in source.GetType().GetProperties())
             {
-                bool isMatched = target.GetType().GetProperties().Any(tProp => tProp.Name == sProp.Name && tProp.GetType() == sProp.GetType() && tProp.CanWrite);
+                bool isMatched = target.GetType().GetProperties().Any(targetProp => targetProp.Name == sourceProp.Name && targetProp.GetType() == sourceProp.GetType() && targetProp.CanWrite);
                 if (isMatched)
                 {
-                    var value = sProp.GetValue(source);
-                    PropertyInfo propertyInfo = target.GetType().GetProperty(sProp.Name);
+                    var value = sourceProp.GetValue(source);
+                    PropertyInfo propertyInfo = target.GetType().GetProperty(sourceProp.Name);
                     propertyInfo.SetValue(target, value);
                 }
             }

@@ -7,7 +7,7 @@ namespace MTFO.Ext.PartialData
 {
     public class PartialDataFileInfo
     {
-        public DataBlockTypeCache TypeCache;
+        public DataBlockTypeWrapper TypeCache;
 
         public string TypeName { get; private set; }
         public string[] Files { get; private set; } = new string[0];

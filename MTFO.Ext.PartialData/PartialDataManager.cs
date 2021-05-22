@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace MTFO.Ext.PartialData
 {
@@ -108,7 +109,7 @@ namespace MTFO.Ext.PartialData
         private static void AssignPersistentID(string file)
         {
             var json = File.ReadAllText(file);
-            var doc = JsonDocument.Parse(json, new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
+            using var doc = JsonDocument.Parse(json, new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
 
             JSON.IDConverter.IsSaveIDMode = true;
             switch (doc.RootElement.ValueKind)
@@ -133,7 +134,7 @@ namespace MTFO.Ext.PartialData
         {
             foreach (var info in _BlockFileInfos)
             {
-                if (!DataBlockTypeLoader.TryFindCache(info.TypeName, out info.TypeCache))
+                if (!DataBlockTypeWrapper.TryFindCache(info.TypeName, out info.TypeCache))
                 {
                     Logger.Warning($"TypeName: {info.TypeName} is not valid DataBlockType!");
                     _BlockFileInfos.Remove(info);
@@ -176,6 +177,22 @@ namespace MTFO.Ext.PartialData
 
                     var content = File.ReadAllText(file);
                     info.TypeCache.AddJsonBlock(content);
+                }
+            }
+        }
+
+        public static void WriteAllFile(string path)
+        {
+            if (!Directory.Exists(path))
+                return;
+
+            foreach (var info in _BlockFileInfos)
+            {
+                var file = Path.Combine(path, "GameData_" + info.TypeCache.TypeName + "_bin.json");
+                var fileFullPath = Path.GetFullPath(file);
+                if (!File.Exists(fileFullPath))
+                {
+                    info.TypeCache.WriteAllToFile(fileFullPath);
                 }
             }
         }

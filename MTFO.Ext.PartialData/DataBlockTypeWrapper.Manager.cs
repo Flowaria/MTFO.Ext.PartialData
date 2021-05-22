@@ -3,13 +3,16 @@ using LevelGeneration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace MTFO.Ext.PartialData
 {
-    public static class DataBlockTypeLoader
+    public partial class DataBlockTypeWrapper
     {
         private readonly static Type[] _HasBlockTypeFilter = new Type[] { typeof(uint) };
-        private readonly static List<DataBlockTypeCache> _DataBlockCache = new List<DataBlockTypeCache>();
+        private readonly static List<DataBlockTypeWrapper> _DataBlockCache = new List<DataBlockTypeWrapper>();
+
         public static void CacheAll()
         {
             try
@@ -43,12 +46,14 @@ namespace MTFO.Ext.PartialData
                 foreach (var type in dataBlockTypes)
                 {
                     var genericType = genericBaseType.MakeGenericType(type);
-                    var cache = new DataBlockTypeCache()
+                    var cache = new DataBlockTypeWrapper()
                     {
                         TypeName = type.Name,
                         SerializeType = type,
                         AddBlockMethod = genericType.GetMethod("AddBlock"),
-                        GetBlockMethod = genericType.GetMethod("GetBlock", _HasBlockTypeFilter)
+                        GetBlockMethod = genericType.GetMethod("GetBlock", _HasBlockTypeFilter),
+                        DoSaveToDiskMethod = genericType.GetMethod("DoSaveToDisk"),
+                        FullPathProperty = genericType.GetProperty("m_filePathFull", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)
                     };
                     AssignForceChangeMethod(cache);
                     _DataBlockCache.Add(cache);
@@ -60,18 +65,20 @@ namespace MTFO.Ext.PartialData
             }
         }
 
-        public static void AssignForceChangeMethod(DataBlockTypeCache blockTypeCache)
+        public static void AssignForceChangeMethod(DataBlockTypeWrapper blockTypeCache)
         {
             //TODO: Better Support
 
-            switch(blockTypeCache.TypeName.ToLower())
+            switch (blockTypeCache.TypeName.ToLower())
             {
                 case "fogsettingsdatablock":
                     blockTypeCache.OnForceChange = () =>
                     {
-
-                        var set = EnvironmentStateManager.Current.m_stateReplicator.m_currentState.FogState.FogDataID;
-                        EnvironmentStateManager.SetFogSettingsLocal(set);
+                        if (Builder.CurrentFloor.IsBuilt)
+                        {
+                            var id = EnvironmentStateManager.Current.m_stateReplicator.m_currentState.FogState.FogDataID;
+                            EnvironmentStateManager.AttemptStartFogTransition(id, 5.0f);
+                        }
                     };
                     break;
 
@@ -95,10 +102,10 @@ namespace MTFO.Ext.PartialData
             }
         }
 
-        public static bool TryFindCache(string blockTypeName, out DataBlockTypeCache cache)
+        public static bool TryFindCache(string blockTypeName, out DataBlockTypeWrapper cache)
         {
             var index = -1;
-            if ((index = _DataBlockCache.FindIndex(x => x.TypeName.Equals(blockTypeName))) != -1)
+            if ((index = _DataBlockCache.FindIndex(x => x.TypeName.Equals(blockTypeName, StringComparison.OrdinalIgnoreCase))) != -1)
             {
                 cache = _DataBlockCache[index];
                 return true;

@@ -14,14 +14,15 @@ namespace MTFO.Ext.PartialData.Utils
         private readonly static JsonSerializerOptions _Setting = new JsonSerializerOptions()
         {
             ReadCommentHandling = JsonCommentHandling.Skip,
-            IncludeFields = true,
-            AllowTrailingCommas = true
+            IncludeFields = false,
+            AllowTrailingCommas = true,
+            WriteIndented = true
         };
 
         static JSON()
         {
             _Setting.Converters.Add(IDConverter);
-            _Setting.Converters.Add(new Il2CppListReadOnlyConverterFactory());
+            _Setting.Converters.Add(new Il2CppListConverterFactory());
             _Setting.Converters.Add(new ColorConverter());
             _Setting.Converters.Add(new JsonStringEnumConverter());
         }
@@ -34,6 +35,11 @@ namespace MTFO.Ext.PartialData.Utils
         public static object Deserialize(string json, Type type)
         {
             return JsonSerializer.Deserialize(json, type, _Setting);
+        }
+
+        public static string Serialize(object obj, Type type)
+        {
+            return JsonSerializer.Serialize(obj, type, _Setting);
         }
     }
 }

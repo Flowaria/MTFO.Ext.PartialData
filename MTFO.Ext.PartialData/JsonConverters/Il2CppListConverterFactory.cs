@@ -9,7 +9,7 @@ namespace MTFO.Ext.PartialData.JsonConverters
 {
     using Il2CppCollections = Il2CppSystem.Collections.Generic;
 
-    public class Il2CppListReadOnlyConverterFactory : JsonConverterFactory
+    public class Il2CppListConverterFactory : JsonConverterFactory
     {
         public override bool CanConvert(Type typeToConvert)
         {
@@ -31,7 +31,7 @@ namespace MTFO.Ext.PartialData.JsonConverters
             Type innerType = typeToConvert.GetGenericArguments()[0];
 
             JsonConverter converter = (JsonConverter)Activator.CreateInstance(
-                typeof(Il2CppListReadOnlyConverter<>).MakeGenericType(
+                typeof(Il2CppListConverter<>).MakeGenericType(
                     new Type[] { innerType }),
                 BindingFlags.Instance | BindingFlags.Public,
                 binder: null,

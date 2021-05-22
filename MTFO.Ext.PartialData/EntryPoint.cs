@@ -12,6 +12,8 @@ using UnhollowerRuntimeLib;
 using GameData;
 using UnhollowerBaseLib;
 using HarmonyLib;
+using System.Text.Json;
+using System;
 
 namespace MTFO.Ext.PartialData
 {
@@ -36,6 +38,9 @@ namespace MTFO.Ext.PartialData
 
             PersistentIDManager.WriteToFile(Path.Combine(PartialDataManager.PartialDataPath, "persistentID.json"));
             AssetShardManager.add_OnStartupAssetsLoaded((Il2CppSystem.Action)OnAssetLoaded);
+
+            var harmony = new Harmony("MTFO.pBlock.Harmony");
+            harmony.PatchAll();
         }
 
         private bool once = false;
@@ -46,8 +51,9 @@ namespace MTFO.Ext.PartialData
                 return;
             once = true;
 
-            DataBlockTypeLoader.CacheAll();
+            DataBlockTypeWrapper.CacheAll();
             PartialDataManager.LoadPartialData();
+            PartialDataManager.WriteAllFile(Path.Combine(MTFOUtil.GameDataPath, "CompiledPartialData"));
         }
     }
 }

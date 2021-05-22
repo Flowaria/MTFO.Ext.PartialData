@@ -48,7 +48,7 @@ namespace MTFO.Ext.PartialData.JsonConverters
 
         public override void Write(Utf8JsonWriter writer, uint value, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
+            writer.WriteNumberValue(value);
         }
     }
 }
