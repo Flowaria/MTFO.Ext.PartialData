@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace MTFO.Ext.PartialData.JsonConverters
 {
-    public class ColorConverter : JsonConverter<Color>
+    internal class ColorConverter : JsonConverter<Color>
     {
         public override bool HandleNull => false;
 
@@ -26,7 +26,6 @@ namespace MTFO.Ext.PartialData.JsonConverters
 
                         var propName = reader.GetString();
                         reader.Read();
-
 
                         switch (propName.ToLower())
                         {

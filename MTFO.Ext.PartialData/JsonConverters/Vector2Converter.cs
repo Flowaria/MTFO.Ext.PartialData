@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using UnityEngine;
 
 namespace MTFO.Ext.PartialData.JsonConverters
 {
-    public class Vector2Converter : JsonConverter<Vector2>
+    internal class Vector2Converter : JsonConverter<Vector2>
     {
         public override Vector2 Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

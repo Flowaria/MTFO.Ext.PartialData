@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace MTFO.Ext.PartialData.Utils
 {
-    public static class MTFOUtil
+    internal static class MTFOUtil
     {
         public const string MTFOGUID = "com.dak.MTFO";
         public static string GameDataPath { get; private set; } = string.Empty;

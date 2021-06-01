@@ -1,8 +1,8 @@
 ﻿using BepInEx.Logging;
 
-namespace MTFO.Ext.PartialData
+namespace MTFO.Ext.PartialData.Utils
 {
-    public static class Logger
+    internal static class Logger
     {
         public static ManualLogSource LogInstance;
         public static bool UsingLog = false;

@@ -1,26 +1,24 @@
 ﻿using GameData;
 using Gear;
 using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using MTFO.Ext.PartialData.Utils;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace MTFO.Ext.PartialData.Injects
 {
     [HarmonyPatch(typeof(GearManager))]
-    class Inject_GearManager
+    internal class Inject_GearManager
     {
-        const string COMP_CHARS = "abcdefghijklmnopqrst";
+        private const string COMP_CHARS = "abcdefghijklmnopqrst";
 
         [HarmonyPrefix]
         [HarmonyWrapSafe]
         [HarmonyPatch(nameof(GearManager.LoadOfflineGearDatas))]
-        static void Pre_LoadOfflineGearDatas()
+        private static void Pre_LoadOfflineGearDatas()
         {
             var allBlocks = GameDataBlockBase<PlayerOfflineGearDataBlock>.GetAllBlocks();
-            foreach(var block in allBlocks)
+            foreach (var block in allBlocks)
             {
                 if (!block.internalEnabled || string.IsNullOrEmpty(block.GearJSON))
                     continue;
@@ -37,9 +35,8 @@ namespace MTFO.Ext.PartialData.Injects
 
                 if (!packetProp.TryGetProperty("Comps", out var compProp))
                     continue;
-                    
 
-                foreach(var c in COMP_CHARS)
+                foreach (var c in COMP_CHARS)
                 {
                     if (!compProp.TryGetProperty(c.ToString(), out var compEProp))
                         continue;

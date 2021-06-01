@@ -1,27 +1,23 @@
 ﻿using MTFO.Ext.PartialData.JsonConverters;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace MTFO.Ext.PartialData.Utils
 {
-    public static class JSON
+    internal static class JSON
     {
-        internal static Internal_PersistentIDConverter IDConverter { get; private set; } = new Internal_PersistentIDConverter();
-
         private readonly static JsonSerializerOptions _Setting = new JsonSerializerOptions()
         {
             ReadCommentHandling = JsonCommentHandling.Skip,
-            IncludeFields = false,
+            IncludeFields = true,
             AllowTrailingCommas = true,
             WriteIndented = true
         };
 
         static JSON()
         {
-            _Setting.Converters.Add(IDConverter);
+            _Setting.Converters.Add(new PersistentIDConverter());
             _Setting.Converters.Add(new Il2CppListConverterFactory());
             _Setting.Converters.Add(new ColorConverter());
             _Setting.Converters.Add(new JsonStringEnumConverter());

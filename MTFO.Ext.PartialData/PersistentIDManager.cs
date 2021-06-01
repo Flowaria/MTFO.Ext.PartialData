@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using MTFO.Ext.PartialData.Utils;
+using System.Collections.Generic;
 using System.IO;
 
 namespace MTFO.Ext.PartialData
 {
-    public static class PersistentIDManager
+    internal static class PersistentIDManager
     {
         private readonly static Dictionary<string, uint> _GUIDDict = new Dictionary<string, uint>();
 
@@ -29,7 +30,7 @@ namespace MTFO.Ext.PartialData
             return id;
         }
 
-        public static void WriteToFile(string path)
+        public static void DumpToFile(string path)
         {
             var text = "[\n\t//AUTO-GENERATED PERSISTENT ID LIST\n";
             foreach (var pair in _GUIDDict)

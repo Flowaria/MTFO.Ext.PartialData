@@ -1,13 +1,11 @@
-﻿using MTFO.Ext.PartialData.JsonConverters;
+﻿using MTFO.Ext.PartialData.DataBlockTypes;
 using MTFO.Ext.PartialData.DTO;
+using MTFO.Ext.PartialData.JsonConverters;
 using MTFO.Ext.PartialData.Utils;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
-using Newtonsoft.Json;
 
 namespace MTFO.Ext.PartialData
 {
@@ -17,12 +15,13 @@ namespace MTFO.Ext.PartialData
         public static string ConfigPath { get; private set; }
         public static bool Initialized { get; private set; } = false;
         public static bool CanLiveEdit { get; set; } = true;
+        public static PersistentIDConverter IDConverter { get; private set; } = new PersistentIDConverter();
 
         private static List<DataBlockDefinition> _Config;
         private static readonly List<string> _AddedFileList = new List<string>();
-        private static readonly List<PartialDataFileInfo> _BlockFileInfos = new List<PartialDataFileInfo>();
-        
-        public static bool Initialize()
+        private static readonly List<PartialDataCache> _DataCache = new List<PartialDataCache>();
+
+        internal static bool Initialize()
         {
             if (Initialized)
                 return false;
@@ -34,12 +33,12 @@ namespace MTFO.Ext.PartialData
             if (!Directory.Exists(PartialDataPath))
                 return false;
 
-            ConfigPath = Path.GetFullPath(Path.Combine(PartialDataPath, "config.json"));
+            ConfigPath = Path.GetFullPath(Path.Combine(PartialDataPath, "_config.json"));
             if (!File.Exists(ConfigPath))
                 return false;
 
             _AddedFileList.Clear();
-            _BlockFileInfos.Clear();
+            _DataCache.Clear();
             _Config = JSON.Deserialize<List<DataBlockDefinition>>(File.ReadAllText(ConfigPath));
 
             Initialized = true;
@@ -51,58 +50,35 @@ namespace MTFO.Ext.PartialData
         {
             foreach (var def in _Config)
             {
-                
-                var fileInfo = new PartialDataFileInfo(def.TypeName);
-                fileInfo.StartID = def.GuidConfig.StartFromID;
-                fileInfo.IncrementMode = def.GuidConfig.IncrementMode;
+                DataBlockTypeManager.SetIDBuffer(def.TypeName, def.StartFromID, def.IncrementMode);
+            }
 
-                var idBuffer = def.GuidConfig.StartFromID;
-                JSON.IDConverter.SaveID = (string guid) =>
+            var files = Directory.GetFiles(PartialDataPath, "*.json", SearchOption.AllDirectories).OrderBy(f => f);
+            foreach (var file in files)
+            {
+                if (Path.GetFileName(file).StartsWith("_"))
                 {
-                    if (PersistentIDManager.TryAssignId(guid, idBuffer))
-                    {
-                        if (def.GuidConfig.IncrementMode == MapperIncrementMode.Decrement)
-                            return idBuffer--;
-                        else
-                            return idBuffer++;
-                    }
-                    return 0;
-                };
-
-                foreach (var searchConfig in def.SearchConfigs)
-                {
-                    var searchOption = searchConfig.CheckSubDirectory ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-                    var searchPath = Path.Combine(PartialDataPath, searchConfig.BaseSubDirectory);
-                    var files = Directory.GetFiles(searchPath, searchConfig.FileSearchPattern, searchOption).OrderBy(f => f);
-                    foreach (var file in files)
-                    {
-                        if (ConfigPath.Equals(Path.GetFullPath(file), StringComparison.OrdinalIgnoreCase))
-                        {
-                            Logger.Error($"config.json is not allowed to be loaded as datablock!");
-                            continue;
-                        }
-
-                        if (!File.Exists(file))
-                        {
-                            Logger.Error($"File ({file}) is not exist somehow?");
-                            continue;
-                        }
-
-                        if (_AddedFileList.Contains(file))
-                        {
-                            Logger.Error($"File ({file}) has loaded multiple times!");
-                            continue;
-                        }
-
-                        _AddedFileList.Add(file);
-                        fileInfo.AddFile(file);
-                        AssignPersistentID(file);
-
-                        Logger.Log($" - {file}");
-                    }
+                    Logger.Log($"{file} have discard prefix (_) excluding from loader!");
+                    continue;
                 }
 
-                _BlockFileInfos.Add(fileInfo);
+                if (!File.Exists(file))
+                {
+                    Logger.Error($"File ({file}) is not exist somehow?");
+                    continue;
+                }
+
+                if (_AddedFileList.Contains(file))
+                {
+                    Logger.Error($"File ({file}) has loaded multiple times!");
+                    continue;
+                }
+
+                _AddedFileList.Add(file);
+
+                AssignPersistentID(file);
+
+                Logger.Log($" - {file}");
             }
         }
 
@@ -111,38 +87,88 @@ namespace MTFO.Ext.PartialData
             var json = File.ReadAllText(file);
             using var doc = JsonDocument.Parse(json, new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
 
-            JSON.IDConverter.IsSaveIDMode = true;
-            switch (doc.RootElement.ValueKind)
+            var root = doc.RootElement;
+            switch (root.ValueKind)
             {
                 case JsonValueKind.Array:
-                    _ = JSON.Deserialize<GameDataDTO[]>(json);
+                    foreach (var element in root.EnumerateArray())
+                    {
+                        Read(element, true, file);
+                    }
                     break;
 
                 case JsonValueKind.Object:
-                    _ = JSON.Deserialize<GameDataDTO>(json);
+                    Read(root, true, file);
                     break;
             }
         }
 
-        public static void LoadPartialData()
+        private static void ReadChangedFile(string file)
         {
-            ValidateDataBlockTypeName();
-            ReadPartialData();
-        }
+            var json = File.ReadAllText(file);
+            using var doc = JsonDocument.Parse(json, new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
 
-        private static void ValidateDataBlockTypeName()
-        {
-            foreach (var info in _BlockFileInfos)
+            var root = doc.RootElement;
+            switch (root.ValueKind)
             {
-                if (!DataBlockTypeWrapper.TryFindCache(info.TypeName, out info.TypeCache))
-                {
-                    Logger.Warning($"TypeName: {info.TypeName} is not valid DataBlockType!");
-                    _BlockFileInfos.Remove(info);
-                }
+                case JsonValueKind.Array:
+                    foreach (var element in root.EnumerateArray())
+                    {
+                        Read(element, false, file);
+                    }
+                    break;
+
+                case JsonValueKind.Object:
+                    Read(root, false, file);
+                    break;
             }
         }
 
-        private static void ReadPartialData()
+        private static void Read(JsonElement objNode, bool assignID, string debugName)
+        {
+            if (!objNode.TryGetProperty("persistentID", out var idNode))
+            {
+                Logger.Error($"persistentID field is missing: {debugName}");
+                return;
+            }
+
+            if (!objNode.TryGetProperty("datablock", out var dbNode))
+            {
+                Logger.Error($"datablock field is missing: {debugName}");
+                return;
+            }
+
+            if (assignID)
+            {
+                if (idNode.ValueKind == JsonValueKind.String)
+                {
+                    if (!DataBlockTypeManager.TryGetNextID(dbNode.GetString(), out var id))
+                    {
+                        Logger.Error($"datablock field is not valid: {debugName} {objNode}");
+                        return;
+                    }
+                    PersistentIDManager.TryAssignId(idNode.GetString(), id);
+                }
+            }
+
+            var datablockName = DataBlockTypeManager.GetBlockName(dbNode.GetString());
+            if (!DataBlockTypeManager.TryFindCache(datablockName, out var cache))
+            {
+                Logger.Error($"datablock field is not valid: {debugName} {objNode}");
+                return;
+            }
+
+            PartialDataCache partialDataCache = _DataCache.FirstOrDefault(x => x.Name.Equals(datablockName));
+            if (partialDataCache == null)
+            {
+                partialDataCache = new PartialDataCache(cache);
+                _DataCache.Add(partialDataCache);
+            }
+
+            partialDataCache.JsonsToRead.Enqueue(objNode.ToString());
+        }
+
+        internal static void LoadPartialData()
         {
             if (!Initialized)
                 return;
@@ -154,60 +180,70 @@ namespace MTFO.Ext.PartialData
                     Path = PartialDataPath,
                     IncludeSubdirectories = true,
                     NotifyFilter = NotifyFilters.LastWrite,
-                    Filter = "*"
+                    Filter = "*.json"
                 };
                 watcher.Changed += new FileSystemEventHandler(OnDataBlockChanged);
                 watcher.EnableRaisingEvents = true;
             }
 
-            JSON.IDConverter.LoadID = (string guid) =>
-            {
-                return PersistentIDManager.GetId(guid);
-            };
-
-            foreach (var info in _BlockFileInfos)
-            {
-                uint idBuffer = info.StartID;
-                
-
-                foreach (var file in info.Files)
-                {
-                    if (!File.Exists(file))
-                        continue;
-
-                    var content = File.ReadAllText(file);
-                    info.TypeCache.AddJsonBlock(content);
-                }
-            }
+            AddAllCache();
         }
 
-        public static void WriteAllFile(string path)
+        internal static void WriteAllFile(string path)
         {
             if (!Directory.Exists(path))
                 return;
 
-            foreach (var info in _BlockFileInfos)
+            foreach (var cache in _DataCache)
             {
-                var file = Path.Combine(path, "GameData_" + info.TypeCache.TypeName + "_bin.json");
+                var file = Path.Combine(path, "GameData_" + cache.DataBlockType.GetFullName() + "_bin.json");
                 var fileFullPath = Path.GetFullPath(file);
                 if (!File.Exists(fileFullPath))
                 {
-                    info.TypeCache.WriteAllToFile(fileFullPath);
+                    cache.DataBlockType.DoSaveToDisk(fileFullPath);
                 }
             }
         }
 
         private static void OnDataBlockChanged(object sender, FileSystemEventArgs e)
         {
-            foreach(var info in _BlockFileInfos)
+            if (!Path.GetFileName(e.Name).StartsWith("_"))
             {
-                if (info.Files.Any(f=>f.Equals(e.Name, StringComparison.OrdinalIgnoreCase)))
+                Logger.Warning($"LiveEdit File Changed: {e.Name}");
+                ReadChangedFile(e.Name);
+                AddAllCache(true);
+            }
+        }
+
+        private static void AddAllCache(bool isLiveEdit = false)
+        {
+            foreach (var cache in _DataCache)
+            {
+                if (isLiveEdit && cache.Name.Equals("Rundown"))
                 {
-                    info.TypeCache.AddJsonBlock(File.ReadAllText(e.Name));
-                    info.TypeCache.ForceApplyChange();
-                    Logger.Log($"DataBlock has edited!: {e.Name}");
+                    cache.JsonsToRead.Clear(); //TODO: Someday, Fix it
+                    Logger.Error("Editing Rundown DataBlock will leads to crash, Ignored");
+                    continue;
+                }
+
+                bool isChanged = false;
+                while (cache.JsonsToRead.Count > 0)
+                {
+                    var json = cache.JsonsToRead.Dequeue();
+                    cache.DataBlockType.AddJsonBlock(json);
+                    isChanged = true;
+                }
+
+                if (isChanged && isLiveEdit)
+                {
+                    cache.DataBlockType.OnChanged();
                 }
             }
+        }
+
+        public static uint GetID(string guid)
+        {
+            return PersistentIDManager.GetId(guid);
         }
     }
 }

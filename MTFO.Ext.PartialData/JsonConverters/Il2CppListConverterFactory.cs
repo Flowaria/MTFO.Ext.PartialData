@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -9,7 +7,7 @@ namespace MTFO.Ext.PartialData.JsonConverters
 {
     using Il2CppCollections = Il2CppSystem.Collections.Generic;
 
-    public class Il2CppListConverterFactory : JsonConverterFactory
+    internal class Il2CppListConverterFactory : JsonConverterFactory
     {
         public override bool CanConvert(Type typeToConvert)
         {

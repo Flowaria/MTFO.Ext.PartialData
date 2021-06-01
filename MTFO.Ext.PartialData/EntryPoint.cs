@@ -1,26 +1,18 @@
 ﻿using AssetShards;
 using BepInEx;
-using BepInEx.IL2CPP;
-using MTFO.Ext.PartialData.JsonConverters;
-using MTFO.Ext.PartialData.DTO;
-using MTFO.Ext.PartialData.Utils;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using BepInEx.Configuration;
-using UnhollowerRuntimeLib;
-using GameData;
-using UnhollowerBaseLib;
+using BepInEx.IL2CPP;
 using HarmonyLib;
-using System.Text.Json;
-using System;
+using MTFO.Ext.PartialData.DataBlockTypes;
+using MTFO.Ext.PartialData.Utils;
+using System.IO;
 
 namespace MTFO.Ext.PartialData
 {
     [BepInPlugin("MTFO.Extension.PartialBlocks", "MTFO pDataBlock", "1.2.0")]
     [BepInProcess("GTFO.exe")]
     [BepInDependency(MTFOUtil.MTFOGUID, BepInDependency.DependencyFlags.HardDependency)]
-    public class EntryPoint : BasePlugin
+    internal class EntryPoint : BasePlugin
     {
         public override void Load()
         {
@@ -30,13 +22,20 @@ namespace MTFO.Ext.PartialData
             Logger.UsingLog = useDevMsg.Value;
             PartialDataManager.CanLiveEdit = useLiveEdit.Value;
 
+            if (DataBlockTypeManager.Initialize())
+            {
+                Logger.Error("Unable to Initialize DataBlockTypeCache; Unload Plugin");
+                Unload();
+                return;
+            }
             if (!PartialDataManager.Initialize())
             {
-                Logger.Warning("Unable to Initialize PartialData");
+                Logger.Error("Unable to Initialize PartialData; Unload Plugin");
+                Unload();
                 return;
             }
 
-            PersistentIDManager.WriteToFile(Path.Combine(PartialDataManager.PartialDataPath, "persistentID.json"));
+            PersistentIDManager.DumpToFile(Path.Combine(PartialDataManager.PartialDataPath, "_persistentID.json"));
             AssetShardManager.add_OnStartupAssetsLoaded((Il2CppSystem.Action)OnAssetLoaded);
 
             var harmony = new Harmony("MTFO.pBlock.Harmony");
@@ -51,7 +50,6 @@ namespace MTFO.Ext.PartialData
                 return;
             once = true;
 
-            DataBlockTypeWrapper.CacheAll();
             PartialDataManager.LoadPartialData();
             PartialDataManager.WriteAllFile(Path.Combine(MTFOUtil.GameDataPath, "CompiledPartialData"));
         }
