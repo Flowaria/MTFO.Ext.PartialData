@@ -14,7 +14,7 @@ namespace MTFO.Ext.PartialData
         public static string PartialDataPath { get; private set; }
         public static string ConfigPath { get; private set; }
         public static bool Initialized { get; private set; } = false;
-        public static bool CanLiveEdit { get; set; } = true;
+        public static bool CanLiveEdit { get; set; } = false;
         public static PersistentIDConverter IDConverter { get; private set; } = new PersistentIDConverter();
 
         private static List<DataBlockDefinition> _Config;
@@ -198,10 +198,7 @@ namespace MTFO.Ext.PartialData
             {
                 var file = Path.Combine(path, "GameData_" + cache.DataBlockType.GetFullName() + "_bin.json");
                 var fileFullPath = Path.GetFullPath(file);
-                if (!File.Exists(fileFullPath))
-                {
-                    cache.DataBlockType.DoSaveToDisk(fileFullPath);
-                }
+                cache.DataBlockType.DoSaveToDisk(fileFullPath);
             }
         }
 
@@ -219,7 +216,7 @@ namespace MTFO.Ext.PartialData
         {
             foreach (var cache in _DataCache)
             {
-                if (isLiveEdit && cache.Name.Equals("Rundown"))
+                if (isLiveEdit && cache.JsonsToRead.Count > 0 && cache.Name.Equals("Rundown"))
                 {
                     cache.JsonsToRead.Clear(); //TODO: Someday, Fix it
                     Logger.Error("Editing Rundown DataBlock will leads to crash, Ignored");
@@ -243,6 +240,9 @@ namespace MTFO.Ext.PartialData
 
         public static uint GetID(string guid)
         {
+            if (!Initialized)
+                return 0;
+
             return PersistentIDManager.GetId(guid);
         }
     }

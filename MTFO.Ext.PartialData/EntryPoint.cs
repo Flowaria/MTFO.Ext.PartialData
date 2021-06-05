@@ -9,7 +9,7 @@ using System.IO;
 
 namespace MTFO.Ext.PartialData
 {
-    [BepInPlugin("MTFO.Extension.PartialBlocks", "MTFO pDataBlock", "1.2.0")]
+    [BepInPlugin("MTFO.Extension.PartialBlocks", "MTFO pDataBlock", "1.3.0")]
     [BepInProcess("GTFO.exe")]
     [BepInDependency(MTFOUtil.MTFOGUID, BepInDependency.DependencyFlags.HardDependency)]
     internal class EntryPoint : BasePlugin
@@ -22,16 +22,14 @@ namespace MTFO.Ext.PartialData
             Logger.UsingLog = useDevMsg.Value;
             PartialDataManager.CanLiveEdit = useLiveEdit.Value;
 
-            if (DataBlockTypeManager.Initialize())
+            if (!DataBlockTypeManager.Initialize())
             {
-                Logger.Error("Unable to Initialize DataBlockTypeCache; Unload Plugin");
-                Unload();
+                Logger.Error("Unable to Initialize DataBlockTypeCache");
                 return;
             }
             if (!PartialDataManager.Initialize())
             {
-                Logger.Error("Unable to Initialize PartialData; Unload Plugin");
-                Unload();
+                Logger.Error("Unable to Initialize PartialData");
                 return;
             }
 
