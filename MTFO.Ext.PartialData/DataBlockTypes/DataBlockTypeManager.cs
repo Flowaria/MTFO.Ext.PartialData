@@ -75,25 +75,6 @@ namespace MTFO.Ext.PartialData.DataBlockTypes
                         {
                             Logger.Error("Fog Transition Code is not working properly, Skipping this one");
                             return;
-
-                            var instance = EnvironmentStateManager.Current;
-                            Logger.Error("Read Replicator");
-                            var replicator = instance.m_stateReplicator;
-                            Logger.Error("Read State");
-                            var state = replicator.State;
-                            Logger.Error("Read FogState");
-                            var fogState = state.FogState;
-                            Logger.Error("Read ID");
-                            var id = fogState.FogDataID;
-                            Logger.Error($"FogTransition {id}");
-
-                            if (!GameDataBlockBase<FogSettingsDataBlock>.HasBlock(id))
-                                id = RundownManager.ActiveExpedition.Expedition.FogSettings;
-
-                            if (GameDataBlockBase<FogSettingsDataBlock>.HasBlock(id))
-                            {
-                                EnvironmentStateManager.SetFogSettingsLocal(id);
-                            }
                         }
                     });
                     break;
@@ -110,7 +91,7 @@ namespace MTFO.Ext.PartialData.DataBlockTypes
                         {
                             foreach (var node in zone.m_courseNodes)
                             {
-                                LG_BuildZoneLightsJob.ApplyLightSettings(node.m_lightsInNode, zone.m_lightSettings, false);
+                                LG_BuildZoneLightsJob.ApplyLightSettings(0, node.m_lightsInNode, zone.m_lightSettings, false);
                             }
                         }
                     });

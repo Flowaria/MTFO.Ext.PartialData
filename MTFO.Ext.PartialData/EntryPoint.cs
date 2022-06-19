@@ -2,7 +2,9 @@
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.IL2CPP;
+using GameData;
 using HarmonyLib;
+using Localization;
 using MTFO.Ext.PartialData.DataBlockTypes;
 using MTFO.Ext.PartialData.Utils;
 using System.IO;
@@ -49,6 +51,30 @@ namespace MTFO.Ext.PartialData
             once = true;
 
             PartialDataManager.LoadPartialData();
+            
+            var gdLocalization = Text.TextLocalizationService.Cast<GameDataTextLocalizationService>();
+            gdLocalization.m_textDataBlocks = null;
+            gdLocalization.m_texts.Clear();
+            //gdLocalization.
+
+            var currentLanguage = Text.TextLocalizationService.CurrentLanguage;
+
+            TextDataBlock[] allBlocks = GameDataBlockBase<TextDataBlock>.GetAllBlocks();
+            gdLocalization.m_textDataBlocks = allBlocks;
+            int num = allBlocks.Length;
+            for (int i = 0; i < num; i++)
+            {
+                TextDataBlock textDataBlock = allBlocks[i];
+                var text = textDataBlock.GetText(currentLanguage, false);
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    text = textDataBlock.English;
+                }
+                gdLocalization.m_texts[textDataBlock.persistentID] = text;
+            }
+
+            Text.TextLocalizationService.SetCurrentLanguage(Text.TextLocalizationService.CurrentLanguage); //Update the TextDataBlock
+            Text.UpdateAllTexts();
             PartialDataManager.WriteAllFile(Path.Combine(MTFOUtil.GameDataPath, "CompiledPartialData"));
         }
     }

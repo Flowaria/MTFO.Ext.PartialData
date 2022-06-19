@@ -18,8 +18,8 @@ namespace MTFO.Ext.PartialData
         public static PersistentIDConverter IDConverter { get; private set; } = new PersistentIDConverter();
 
         private static List<DataBlockDefinition> _Config;
-        private static readonly List<string> _AddedFileList = new List<string>();
-        private static readonly List<PartialDataCache> _DataCache = new List<PartialDataCache>();
+        private static readonly List<string> _AddedFileList = new();
+        private static readonly List<PartialDataCache> _DataCache = new();
 
         internal static bool Initialize()
         {

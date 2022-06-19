@@ -1,4 +1,5 @@
 ﻿using GameData;
+using Localization;
 using MTFO.Ext.PartialData.Utils;
 using System;
 using System.Linq;
@@ -76,12 +77,23 @@ namespace MTFO.Ext.PartialData.DataBlockTypes
         {
             foreach (var sourceProp in source.GetType().GetProperties())
             {
-                bool isMatched = target.GetType().GetProperties().Any(targetProp => targetProp.Name == sourceProp.Name && targetProp.GetType() == sourceProp.GetType() && targetProp.CanWrite);
-                if (isMatched)
+                var sourceType = sourceProp.PropertyType;
+
+                var targetProp = target.GetType().GetProperties().FirstOrDefault(x => x.Name == sourceProp.Name && x.PropertyType == sourceProp.PropertyType && x.CanWrite);
+                if (targetProp != null)
                 {
-                    var value = sourceProp.GetValue(source);
-                    PropertyInfo propertyInfo = target.GetType().GetProperty(sourceProp.Name);
-                    propertyInfo.SetValue(target, value);
+                    if (sourceProp.Name.Contains("_k__BackingField"))
+                    {
+                        continue;
+                    }
+
+                    if (sourceType == typeof(IntPtr))
+                    {
+                        Logger.Error("Pointer has detected on CopyProperties!!!!");
+                        continue;
+                    }
+
+                    targetProp.SetValue(target, sourceProp.GetValue(source));
                 }
             }
             return target;

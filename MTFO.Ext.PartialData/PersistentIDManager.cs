@@ -30,6 +30,17 @@ namespace MTFO.Ext.PartialData
             return id;
         }
 
+        public static bool TryGetId(string guid, out uint id)
+        {
+            if (_GUIDDict.TryGetValue(guid, out id))
+            {
+                return true;
+            }
+
+            id = 0u;
+            return false;
+        }
+
         public static void DumpToFile(string path)
         {
             var text = "[\n\t//AUTO-GENERATED PERSISTENT ID LIST\n";

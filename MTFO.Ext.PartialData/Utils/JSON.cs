@@ -7,20 +7,29 @@ namespace MTFO.Ext.PartialData.Utils
 {
     internal static class JSON
     {
-        private readonly static JsonSerializerOptions _Setting = new JsonSerializerOptions()
-        {
-            ReadCommentHandling = JsonCommentHandling.Skip,
-            IncludeFields = true,
-            AllowTrailingCommas = true,
-            WriteIndented = true
-        };
+        private readonly static JsonSerializerOptions _Setting = CreateSetting();
 
         static JSON()
         {
+            _Setting = CreateSetting();
             _Setting.Converters.Add(new PersistentIDConverter());
-            _Setting.Converters.Add(new Il2CppListConverterFactory());
-            _Setting.Converters.Add(new ColorConverter());
-            _Setting.Converters.Add(new JsonStringEnumConverter());
+        }
+
+        private static JsonSerializerOptions CreateSetting()
+        {
+            var setting = new JsonSerializerOptions()
+            {
+                ReadCommentHandling = JsonCommentHandling.Skip,
+                IncludeFields = true,
+                AllowTrailingCommas = true,
+                WriteIndented = true
+            };
+            setting.Converters.Add(new Il2CppListConverterFactory());
+            setting.Converters.Add(new ColorConverter());
+            setting.Converters.Add(new JsonStringEnumConverter());
+            setting.Converters.Add(new LocalizedTextConverter());
+
+            return setting;
         }
 
         public static T Deserialize<T>(string json)
@@ -31,11 +40,6 @@ namespace MTFO.Ext.PartialData.Utils
         public static object Deserialize(string json, Type type)
         {
             return JsonSerializer.Deserialize(json, type, _Setting);
-        }
-
-        public static string Serialize(object obj, Type type)
-        {
-            return JsonSerializer.Serialize(obj, type, _Setting);
         }
     }
 }
