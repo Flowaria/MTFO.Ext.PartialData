@@ -1,4 +1,5 @@
-﻿using MTFO.Ext.PartialData.DataBlockTypes;
+﻿using GTFO.API.Utilities;
+using MTFO.Ext.PartialData.DataBlockTypes;
 using MTFO.Ext.PartialData.Utils;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,9 @@ namespace MTFO.Ext.PartialData
         public string Namespace { get; private set; } = string.Empty;
         public bool CheckFileChange { get; set; } = true;
 
-        private readonly List<FileSystemWatcher> _FileWatchers = new List<FileSystemWatcher>();
-        private readonly List<string> _AddedFiles = new List<string>();
-        private readonly List<PartialDataCache> _DataCaches = new List<PartialDataCache>();
+        private readonly List<FileSystemWatcher> _FileWatchers = new();
+        private readonly List<string> _AddedFiles = new();
+        private readonly List<PartialDataCache> _DataCaches = new();
 
         public PartialDataPack()
         {
@@ -163,12 +164,15 @@ namespace MTFO.Ext.PartialData
 
         private void OnFileChanged(object sender, FileSystemEventArgs e)
         {
-            if (!Path.GetFileName(e.Name).StartsWith("_"))
+            ThreadDispatcher.Dispatch(() =>
             {
-                Logger.Warning($"LiveEdit File Changed: {e.Name}");
-                ReadChangedFile(e.Name);
-                OnDatablockChanged();
-            }
+                if (!Path.GetFileName(e.Name).StartsWith("_"))
+                {
+                    Logger.Warning($"LiveEdit File Changed: {e.Name}");
+                    ReadChangedFile(e.Name);
+                    OnDatablockChanged();
+                }
+            });
         }
 
         private void OnDatablockChanged()
