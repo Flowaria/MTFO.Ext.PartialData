@@ -10,12 +10,11 @@
 	<CorLibsFolder>$(GameFolder)\dotnet\corlib</CorLibsFolder>
 	<InteropLibsFolder>$(GameFolder)\BepInEx\interop</InteropLibsFolder>
 	<TargetFramework>net6</TargetFramework>
-	<UnhollowedLibsFolder>$(GameFolder)\BepInEx\unhollowed</UnhollowedLibsFolder>
 	<PluginsFolder>$(GameFolder)\BepInEx\plugins</PluginsFolder>
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	<Version>0.1.0</Version>
 	<RootNamespace>MTFO.Ext.PartialData</RootNamespace>
-	<Platforms>AnyCPU;x64</Platforms>
+	<Platforms>x64</Platforms>
 </PropertyGroup>
 
 	<!-- BepInEx libs -->

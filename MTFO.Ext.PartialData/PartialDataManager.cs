@@ -31,11 +31,19 @@ namespace MTFO.Ext.PartialData
 
             PartialDataPath = Path.GetFullPath(Path.Combine(MTFOUtil.GameDataPath, "PartialData"));
             if (!Directory.Exists(PartialDataPath))
+            {
+                Logger.Error("Unable to setup PartialData::PartialData folder is missing");
                 return false;
+            }
+                
 
             ConfigPath = Path.GetFullPath(Path.Combine(PartialDataPath, "_config.json"));
             if (!File.Exists(ConfigPath))
+            {
+                Logger.Error("Unable to setup PartialData::Config File (_config.json) is missing");
                 return false;
+            }
+                
 
             _AddedFileList.Clear();
             _DataCache.Clear();

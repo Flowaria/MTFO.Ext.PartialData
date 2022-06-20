@@ -18,7 +18,9 @@ namespace MTFO.Ext.PartialData.DataBlockTypes
             try
             {
                 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                var asm = assemblies.First(a => !a.IsDynamic && a.Location.EndsWith("Modules-ASM.dll"));
+                var asm = assemblies
+                    .Where(a => !a.IsDynamic && a.Location.Contains("interop", StringComparison.InvariantCultureIgnoreCase))
+                    .First(a => a.Location.EndsWith("Modules-ASM.dll", StringComparison.InvariantCultureIgnoreCase));
 
                 var dataBlockTypes = new List<Type>();
                 foreach (var type in asm.ExportedTypes)
