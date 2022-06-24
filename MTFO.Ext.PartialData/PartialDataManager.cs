@@ -1,4 +1,6 @@
-﻿using MTFO.Ext.PartialData.DataBlockTypes;
+﻿using Enemies;
+using GTFO.API.Utilities;
+using MTFO.Ext.PartialData.DataBlockTypes;
 using MTFO.Ext.PartialData.DTO;
 using MTFO.Ext.PartialData.JsonConverters;
 using MTFO.Ext.PartialData.Utils;
@@ -6,6 +8,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using UnityEngine;
+using Logger = MTFO.Ext.PartialData.Utils.Logger;
 
 namespace MTFO.Ext.PartialData
 {
@@ -111,10 +115,9 @@ namespace MTFO.Ext.PartialData
             }
         }
 
-        private static void ReadChangedFile(string file)
+        private static void ReadChangedFile(string content, string debugName)
         {
-            var json = File.ReadAllText(file);
-            using var doc = JsonDocument.Parse(json, new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
+            using var doc = JsonDocument.Parse(content, new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
 
             var root = doc.RootElement;
             switch (root.ValueKind)
@@ -122,14 +125,20 @@ namespace MTFO.Ext.PartialData
                 case JsonValueKind.Array:
                     foreach (var element in root.EnumerateArray())
                     {
-                        Read(element, false, file);
+                        Read(element, false, debugName);
                     }
                     break;
 
                 case JsonValueKind.Object:
-                    Read(root, false, file);
+                    Read(root, false, debugName);
                     break;
             }
+        }
+
+        private static void ReadChangedFile(string file)
+        {
+            var json = File.ReadAllText(file);
+            ReadChangedFile(json, file);
         }
 
         private static void Read(JsonElement objNode, bool assignID, string debugName)
@@ -183,18 +192,35 @@ namespace MTFO.Ext.PartialData
 
             if (CanLiveEdit)
             {
-                var watcher = new FileSystemWatcher
-                {
-                    Path = PartialDataPath,
-                    IncludeSubdirectories = true,
-                    NotifyFilter = NotifyFilters.LastWrite,
-                    Filter = "*.json"
-                };
-                watcher.Changed += new FileSystemEventHandler(OnDataBlockChanged);
-                watcher.EnableRaisingEvents = true;
+                var listener = LiveEdit.CreateListener(PartialDataPath, "*.json", includeSubDir: true);
+                listener.FileChanged += Listener_FileChanged;
             }
 
             AddAllCache();
+        }
+
+        static float _updateTimer = 0.0f;
+        private static void Listener_FileChanged(FileSystemEventArgs e)
+        {
+            var time = Time.time;
+            if (_updateTimer > time)
+            {
+                return;
+            }
+
+            _updateTimer = time + 0.1f;
+
+            if (Path.GetFileName(e.FullPath).StartsWith("_"))
+            {
+                return;
+            }
+
+            Logger.Warning($"LiveEdit File Changed: {e.FullPath}");
+            LiveEdit.TryReadFileContent(e.FullPath, (content) =>
+            {
+                ReadChangedFile(content, e.FullPath);
+                AddAllCache(true);
+            });
         }
 
         internal static void WriteAllFile(string path)
@@ -210,27 +236,10 @@ namespace MTFO.Ext.PartialData
             }
         }
 
-        private static void OnDataBlockChanged(object sender, FileSystemEventArgs e)
-        {
-            if (!Path.GetFileName(e.Name).StartsWith("_"))
-            {
-                Logger.Warning($"LiveEdit File Changed: {e.Name}");
-                ReadChangedFile(e.Name);
-                AddAllCache(true);
-            }
-        }
-
         private static void AddAllCache(bool isLiveEdit = false)
         {
             foreach (var cache in _DataCache)
             {
-                if (isLiveEdit && cache.JsonsToRead.Count > 0 && cache.Name.Equals("Rundown"))
-                {
-                    cache.JsonsToRead.Clear(); //TODO: Someday, Fix it
-                    Logger.Error("Editing Rundown DataBlock will leads to crash, Ignored");
-                    continue;
-                }
-
                 bool isChanged = false;
                 while (cache.JsonsToRead.Count > 0)
                 {

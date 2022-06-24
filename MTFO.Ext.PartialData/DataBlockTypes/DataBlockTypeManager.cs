@@ -1,10 +1,13 @@
 ﻿using GameData;
 using Gear;
+using Globals;
 using LevelGeneration;
 using MTFO.Ext.PartialData.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
+using Logger = MTFO.Ext.PartialData.Utils.Logger;
 
 namespace MTFO.Ext.PartialData.DataBlockTypes
 {
@@ -70,14 +73,59 @@ namespace MTFO.Ext.PartialData.DataBlockTypes
             //TODO: Better Support
             switch (blockTypeCache.GetShortName().ToLower())
             {
+                case "rundown":
+                    blockTypeCache.RegisterOnChangeEvent(() =>
+                    {
+                        var rundownPage = MainMenuGuiLayer.Current.PageRundownNew;
+                        rundownPage.m_dataIsSetup = false;
+                        try
+                        {
+                            clearIcon(rundownPage.m_expIconsTier1);
+                            clearIcon(rundownPage.m_expIconsTier2);
+                            clearIcon(rundownPage.m_expIconsTier3);
+                            clearIcon(rundownPage.m_expIconsTier4);
+                            clearIcon(rundownPage.m_expIconsTier5);
+                            clearIcon(rundownPage.m_expIconsTierExt);
+
+                            static void clearIcon(Il2CppSystem.Collections.Generic.List<CellMenu.CM_ExpeditionIcon_New> tier)
+                            {
+                                if (tier == null)
+                                    return;
+
+
+                                foreach (var icon in tier)
+                                {
+                                    var obj = icon.gameObject;
+                                    if (obj != null)
+                                        GameObject.Destroy(icon.gameObject);
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Error($"{e}");
+                        }
+                        
+
+                        rundownPage.m_currentRundownData = GameDataBlockBase<RundownDataBlock>.GetBlock(Global.RundownIdToLoad);
+                        if (rundownPage.m_currentRundownData != null)
+                        {
+                            rundownPage.PlaceRundown(rundownPage.m_currentRundownData);
+                            rundownPage.m_dataIsSetup = true;
+                        }
+                    });
+                    break;
+
                 case "fogsettings":
                     blockTypeCache.RegisterOnChangeEvent(() =>
                     {
-                        if (Builder.CurrentFloor.IsBuilt)
+                        if (!Builder.CurrentFloor.IsBuilt)
                         {
-                            Logger.Error("Fog Transition Code is not working properly, Skipping this one");
                             return;
                         }
+
+                        var state = EnvironmentStateManager.Current.m_stateReplicator.State;
+                        EnvironmentStateManager.Current.UpdateFogSettingsForState(state);
                     });
                     break;
 
