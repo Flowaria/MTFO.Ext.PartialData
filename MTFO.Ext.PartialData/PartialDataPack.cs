@@ -15,7 +15,6 @@ namespace MTFO.Ext.PartialData
         public string Namespace { get; private set; } = string.Empty;
         public bool CheckFileChange { get; set; } = true;
 
-        private readonly List<FileSystemWatcher> _FileWatchers = new();
         private readonly List<string> _AddedFiles = new();
         private readonly List<PartialDataCache> _DataCaches = new();
 
@@ -41,14 +40,8 @@ namespace MTFO.Ext.PartialData
 
         public void ClearPack()
         {
-            foreach (var watcher in _FileWatchers)
-            {
-                watcher.EnableRaisingEvents = false;
-            }
-
             _AddedFiles.Clear();
             _DataCaches.Clear();
-            _FileWatchers.Clear();
         }
 
         public void ReadPack(string packPath)
@@ -83,15 +76,7 @@ namespace MTFO.Ext.PartialData
 
             if (CheckFileChange)
             {
-                var watcher = new FileSystemWatcher
-                {
-                    Path = packPath,
-                    IncludeSubdirectories = true,
-                    NotifyFilter = NotifyFilters.LastWrite,
-                    Filter = "*.json"
-                };
-                watcher.Changed += new FileSystemEventHandler(OnFileChanged);
-                watcher.EnableRaisingEvents = true;
+                //TODO: HI
             }
         }
 
@@ -160,19 +145,6 @@ namespace MTFO.Ext.PartialData
                     Read(root, false, file);
                     break;
             }
-        }
-
-        private void OnFileChanged(object sender, FileSystemEventArgs e)
-        {
-            ThreadDispatcher.Dispatch(() =>
-            {
-                if (!Path.GetFileName(e.Name).StartsWith("_"))
-                {
-                    Logger.Warning($"LiveEdit File Changed: {e.Name}");
-                    ReadChangedFile(e.Name);
-                    OnDatablockChanged();
-                }
-            });
         }
 
         private void OnDatablockChanged()

@@ -193,28 +193,14 @@ namespace MTFO.Ext.PartialData
             if (CanLiveEdit)
             {
                 var listener = LiveEdit.CreateListener(PartialDataPath, "*.json", includeSubDir: true);
-                listener.FileChanged += Listener_FileChanged;
+                listener.FileChanged += Listener_FileChanged1;
             }
 
             AddAllCache();
         }
 
-        static float _updateTimer = 0.0f;
-        private static void Listener_FileChanged(FileSystemEventArgs e)
+        private static void Listener_FileChanged1(LiveEditEventArgs e)
         {
-            var time = Time.time;
-            if (_updateTimer > time)
-            {
-                return;
-            }
-
-            _updateTimer = time + 0.1f;
-
-            if (Path.GetFileName(e.FullPath).StartsWith("_"))
-            {
-                return;
-            }
-
             Logger.Warning($"LiveEdit File Changed: {e.FullPath}");
             LiveEdit.TryReadFileContent(e.FullPath, (content) =>
             {
