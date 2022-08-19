@@ -7,7 +7,7 @@
 
 <PropertyGroup>
 	<BIELibsFolder>$(GameFolder)\BepInEx\core</BIELibsFolder>
-	<CorLibsFolder>$(GameFolder)\dotnet\corlib</CorLibsFolder>
+	<CorLibsFolder>$(GameFolder)\dotnet</CorLibsFolder>
 	<InteropLibsFolder>$(GameFolder)\BepInEx\interop</InteropLibsFolder>
 	<TargetFramework>net6</TargetFramework>
 	<PluginsFolder>$(GameFolder)\BepInEx\plugins</PluginsFolder>
