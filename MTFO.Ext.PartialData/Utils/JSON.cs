@@ -1,4 +1,5 @@
-﻿using MTFO.Ext.PartialData.JsonConverters;
+﻿using InjectLib.JsonNETInjection.Supports;
+using MTFO.Ext.PartialData.JsonConverters;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -28,10 +29,11 @@ namespace MTFO.Ext.PartialData.Utils
             setting.Converters.Add(new ColorConverter());
             setting.Converters.Add(new JsonStringEnumConverter());
             setting.Converters.Add(new LocalizedTextConverter());
+            setting.Converters.Add(new InjectLibConnector());
 
             return setting;
         }
-
+        
         public static T Deserialize<T>(string json)
         {
             return JsonSerializer.Deserialize<T>(json, _Setting);
