@@ -25,10 +25,12 @@ namespace MTFO.Ext.PartialData.Utils
                 AllowTrailingCommas = true,
                 WriteIndented = true
             };
+
             setting.Converters.Add(new Il2CppListConverterFactory());
             setting.Converters.Add(new ColorConverter());
             setting.Converters.Add(new JsonStringEnumConverter());
             setting.Converters.Add(new LocalizedTextConverter());
+            setting.Converters.Add(new LanguageDataConverter());
             setting.Converters.Add(new InjectLibConnector());
 
             return setting;

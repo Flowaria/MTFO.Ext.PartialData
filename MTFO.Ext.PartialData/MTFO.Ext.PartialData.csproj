@@ -25,12 +25,6 @@
 		<Reference Include="$(BIELibsFolder)\Il2CppInterop.*.dll" Private="false" />
 	</ItemGroup>
 
-	<!-- CorLibs -->
-	<ItemGroup>
-		<Reference Include="$(CorLibsFolder)\*.dll" Private="false" />
-		<Reference Include="$(CorLibsFolder)\..\System.Private.CoreLib.dll" Private="false" />
-	</ItemGroup>
-
 	<!-- Interop -->
 	<ItemGroup>
 		<Reference Include="$(InteropLibsFolder)/*.dll" Private="false" />

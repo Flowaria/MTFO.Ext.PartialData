@@ -11,7 +11,7 @@ using System.IO;
 
 namespace MTFO.Ext.PartialData
 {
-    [BepInPlugin("MTFO.Extension.PartialBlocks", "MTFO pDataBlock", "1.4.0")]
+    [BepInPlugin("MTFO.Extension.PartialBlocks", "MTFO pDataBlock", "1.4.1")]
     [BepInProcess("GTFO.exe")]
     [BepInDependency(MTFOUtil.MTFOGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
@@ -52,7 +52,7 @@ namespace MTFO.Ext.PartialData
             once = true;
 
             PartialDataManager.LoadPartialData();
-            
+
             var gdLocalization = Text.TextLocalizationService.Cast<GameDataTextLocalizationService>();
             gdLocalization.m_textDataBlocks = null;
             gdLocalization.m_texts.Clear();
