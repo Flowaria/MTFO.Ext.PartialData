@@ -9,6 +9,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+GameFolder.props
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
