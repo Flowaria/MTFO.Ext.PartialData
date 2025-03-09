@@ -26,10 +26,11 @@ namespace MTFO.Ext.PartialData
 
         public override void Load()
         {
+            Logger.LogInstance = Log;
+
             InjectLibUtil.Setup();
             MTFOUtil.Setup();
 
-            Logger.LogInstance = Log;
             LogDebugs = Config.Bind(new ConfigDefinition("Logging", "Log Debug Messages"), false, new ConfigDescription("Using Debug Log Messages?")).Value;
             LogAddBlock = Config.Bind(new ConfigDefinition("Logging", "Log AddBlock"), false, new ConfigDescription("Using Log Message for AddBlock?")).Value;
             LogEditBlock = Config.Bind(new ConfigDefinition("Logging", "Log EditBlock"), true, new ConfigDescription("Using Log Message for Editing Block (Mostly by LiveEdit)?")).Value;

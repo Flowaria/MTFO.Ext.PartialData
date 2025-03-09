@@ -1,5 +1,4 @@
-﻿using InjectLib.JsonNETInjection.Supports;
-using MTFO.Ext.PartialData.JsonConverters;
+﻿using MTFO.Ext.PartialData.JsonConverters;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -8,12 +7,11 @@ namespace MTFO.Ext.PartialData.Utils
 {
     internal static class JSON
     {
-        public readonly static JsonSerializerOptions Setting = CreateSetting();
+        public readonly static JsonSerializerOptions Setting;
 
         static JSON()
         {
             Setting = CreateSetting();
-            Setting.Converters.Add(new PersistentIDConverter());
         }
 
         private static JsonSerializerOptions CreateSetting()
@@ -29,9 +27,9 @@ namespace MTFO.Ext.PartialData.Utils
             setting.Converters.Add(new Il2CppListConverterFactory());
             setting.Converters.Add(new ColorConverter());
             setting.Converters.Add(new JsonStringEnumConverter());
-            setting.Converters.Add(new LocalizedTextConverter());
             setting.Converters.Add(new LanguageDataConverter());
-            setting.Converters.Add(new InjectLibConnector());
+            setting.Converters.Add(new PersistentIDConverter());
+            setting.Converters.Add(new LocalizedTextConverter());
 
             return setting;
         }

@@ -2,6 +2,7 @@
 using Il2CppJsonNet.Linq;
 using InjectLib.JsonNETInjection.Converter;
 using Localization;
+using MTFO.Ext.PartialData.Utils;
 
 namespace MTFO.Ext.PartialData.JsonConverters.InjectLibConverters;
 internal class Il2CppLocalizedTextConverter : Il2CppJsonReferenceTypeConverter<LocalizedText>
@@ -18,8 +19,22 @@ internal class Il2CppLocalizedTextConverter : Il2CppJsonReferenceTypeConverter<L
                 break;
 
             case JTokenType.String:
-                value.Id = 0;
-                value.UntranslatedText = (string)jToken;
+                var str = (string)jToken;
+                if (PersistentIDManager.TryGetId(str, out var id))
+                {
+                    value.Id = id;
+                    value.UntranslatedText = null;
+
+                    if (EntryPoint.LogInjectLibLink)
+                    {
+                        Logger.Log($"InjectLib_PData: Linked GUID: '{str}' to TextDB: '{id}'");
+                    }
+                }
+                else
+                {
+                    value.Id = 0;
+                    value.UntranslatedText = str;
+                }
                 break;
         }
 
