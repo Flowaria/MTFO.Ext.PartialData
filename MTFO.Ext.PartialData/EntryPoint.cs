@@ -11,7 +11,7 @@ using System.IO;
 
 namespace MTFO.Ext.PartialData
 {
-    [BepInPlugin("MTFO.Extension.PartialBlocks", "MTFO pDataBlock", "1.4.1")]
+    [BepInPlugin("MTFO.Extension.PartialBlocks", "MTFO pDataBlock", "1.5.0")]
     [BepInProcess("GTFO.exe")]
     [BepInDependency(MTFOUtil.MTFOGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
