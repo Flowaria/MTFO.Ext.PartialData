@@ -22,6 +22,7 @@ namespace MTFO.Ext.PartialData.Utils
                 try
                 {
                     JsonInjector.SetConverter(new Il2CppPersistentIDConverter());
+                    JsonInjector.SetConverter(new Il2CppLocalizedTextConverter());
                     InjectLibConnector = new InjectLibConnector();
                     JSON.Setting.Converters.Add(InjectLibConnector);
 
