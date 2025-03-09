@@ -15,10 +15,14 @@ namespace MTFO.Ext.PartialData
     [BepInProcess("GTFO.exe")]
     [BepInDependency(MTFOUtil.MTFOGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(InjectLibUtil.PLUGIN_GUID, BepInDependency.DependencyFlags.SoftDependency)]
     internal class EntryPoint : BasePlugin
     {
         public override void Load()
         {
+            InjectLibUtil.Setup();
+            MTFOUtil.Setup();
+
             Logger.LogInstance = Log;
             var useDevMsg = Config.Bind(new ConfigDefinition("Logging", "UseLog"), false, new ConfigDescription("Using Log Message for Debug?"));
             var useLiveEdit = Config.Bind(new ConfigDefinition("Developer", "UseLiveEdit"), false, new ConfigDescription("Using Live Edit?"));

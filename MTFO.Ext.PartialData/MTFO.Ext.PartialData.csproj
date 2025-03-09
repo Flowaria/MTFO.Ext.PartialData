@@ -9,7 +9,7 @@
 	<BIELibsFolder>$(GameFolder)\BepInEx\core</BIELibsFolder>
 	<CorLibsFolder>$(GameFolder)\dotnet</CorLibsFolder>
 	<InteropLibsFolder>$(GameFolder)\BepInEx\interop</InteropLibsFolder>
-	<TargetFramework>net6</TargetFramework>
+	<TargetFramework>net6-windows</TargetFramework>
 	<PluginsFolder>$(GameFolder)\BepInEx\plugins</PluginsFolder>
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	<Version>0.1.0</Version>
@@ -20,6 +20,7 @@
 	<!-- BepInEx libs -->
 	<ItemGroup>
 		<Reference Include="$(BIELibsFolder)\BepInEx.*.dll" Private="false" />
+		
 		<Reference Include="$(BIELibsFolder)\0Harmony.dll" Private="false" />
 		<Reference Include="$(BIELibsFolder)\MonoMod.RuntimeDetour.dll" Private="false" />
 		<Reference Include="$(BIELibsFolder)\Il2CppInterop.*.dll" Private="false" />
@@ -28,12 +29,14 @@
 	<!-- Interop -->
 	<ItemGroup>
 		<Reference Include="$(InteropLibsFolder)/*.dll" Private="false" />
+		<Reference Include="$(GameFolder)\BepInEx\cache\Il2CppJsonNet.dll" Private="false" />
 		<Reference Remove="$(InteropLibsFolder)/netstandard.dll" />
 		<Reference Remove="$(InteropLibsFolder)/Newtonsoft.Json.dll" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="$(PluginsFolder)/GTFO-API.dll" Private="false" />
+		<Reference Include="$(PluginsFolder)/**/GTFO-API.dll" Private="false" />
+		<Reference Include="$(PluginsFolder)/**/InjectLib.dll" Private="false" />
 	</ItemGroup>
 </Project>
  

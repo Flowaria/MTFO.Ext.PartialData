@@ -13,7 +13,7 @@ namespace MTFO.Ext.PartialData.Utils
         public static bool HasCustomContent { get; private set; } = false;
         public static bool IsLoaded { get; private set; } = false;
 
-        static MTFOUtil()
+        internal static void Setup()
         {
             if (IL2CPPChainloader.Instance.Plugins.TryGetValue(MTFOGUID, out var info))
             {

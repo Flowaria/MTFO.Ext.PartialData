@@ -8,12 +8,12 @@ namespace MTFO.Ext.PartialData.Utils
 {
     internal static class JSON
     {
-        private readonly static JsonSerializerOptions _Setting = CreateSetting();
+        public readonly static JsonSerializerOptions Setting = CreateSetting();
 
         static JSON()
         {
-            _Setting = CreateSetting();
-            _Setting.Converters.Add(new PersistentIDConverter());
+            Setting = CreateSetting();
+            Setting.Converters.Add(new PersistentIDConverter());
         }
 
         private static JsonSerializerOptions CreateSetting()
@@ -35,15 +35,15 @@ namespace MTFO.Ext.PartialData.Utils
 
             return setting;
         }
-        
+
         public static T Deserialize<T>(string json)
         {
-            return JsonSerializer.Deserialize<T>(json, _Setting);
+            return JsonSerializer.Deserialize<T>(json, Setting);
         }
 
         public static object Deserialize(string json, Type type)
         {
-            return JsonSerializer.Deserialize(json, type, _Setting);
+            return JsonSerializer.Deserialize(json, type, Setting);
         }
     }
 }

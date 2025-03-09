@@ -1,10 +1,9 @@
 ﻿using BepInEx.Unity.IL2CPP;
+using InjectLib.JsonNETInjection;
+using InjectLib.JsonNETInjection.Supports;
+using MTFO.Ext.PartialData.JsonConverters.InjectLibConverters;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace MTFO.Ext.PartialData.Utils
 {
@@ -16,23 +15,16 @@ namespace MTFO.Ext.PartialData.Utils
 
         public static bool IsLoaded { get; private set; } = false;
 
-        static InjectLibUtil()
+        internal static void Setup()
         {
             if (IL2CPPChainloader.Instance.Plugins.TryGetValue(PLUGIN_GUID, out var info))
             {
                 try
                 {
-                    var ddAsm = info?.Instance?.GetType()?.Assembly ?? null;
+                    JsonInjector.SetConverter(new Il2CppPersistentIDConverter());
+                    InjectLibConnector = new InjectLibConnector();
+                    JSON.Setting.Converters.Add(InjectLibConnector);
 
-                    if (ddAsm is null)
-                        throw new Exception("Assembly is Missing!");
-
-                    var types = ddAsm.GetTypes();
-                    var converterType = types.First(t => t.Name == "InjectLibConnector");
-                    if (converterType is null)
-                        throw new Exception("Unable to Find InjectLibConnector Class");
-
-                    InjectLibConnector = (JsonConverter)Activator.CreateInstance(converterType);
                     IsLoaded = true;
                 }
                 catch (Exception e)
