@@ -1,5 +1,4 @@
-﻿using Enemies;
-using GTFO.API.Utilities;
+﻿using GTFO.API.Utilities;
 using MTFO.Ext.PartialData.DataBlockTypes;
 using MTFO.Ext.PartialData.DTO;
 using MTFO.Ext.PartialData.JsonConverters;
@@ -8,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using UnityEngine;
 using Logger = MTFO.Ext.PartialData.Utils.Logger;
 
 namespace MTFO.Ext.PartialData
@@ -39,7 +37,7 @@ namespace MTFO.Ext.PartialData
                 Logger.Error("Unable to setup PartialData::PartialData folder is missing");
                 return false;
             }
-                
+
 
             ConfigPath = Path.GetFullPath(Path.Combine(PartialDataPath, "_config.json"));
             if (!File.Exists(ConfigPath))
@@ -47,7 +45,7 @@ namespace MTFO.Ext.PartialData
                 Logger.Error("Unable to setup PartialData::Config File (_config.json) is missing");
                 return false;
             }
-                
+
 
             _AddedFileList.Clear();
             _DataCache.Clear();
@@ -70,7 +68,7 @@ namespace MTFO.Ext.PartialData
             {
                 if (Path.GetFileName(file).StartsWith("_"))
                 {
-                    Logger.Log($"{file} have discard prefix (_) excluding from loader!");
+                    Logger.Debug($"{file} have discard prefix (_) excluding from loader!");
                     continue;
                 }
 
@@ -90,7 +88,7 @@ namespace MTFO.Ext.PartialData
 
                 AssignPersistentID(file);
 
-                Logger.Log($" - {file}");
+                Logger.Debug($" - {file}");
             }
         }
 

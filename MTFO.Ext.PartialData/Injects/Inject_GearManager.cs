@@ -48,7 +48,9 @@ namespace MTFO.Ext.PartialData.Injects
                         continue;
 
                     var strValue = valueProp.GetString();
-                    Logger.Warning($"Found String id: {strValue}");
+
+                    if (EntryPoint.LogOfflineGearLink)
+                        Logger.Warning($"Found String id: {strValue}");
 
                     var id = PersistentIDManager.GetId(strValue);
                     if (id != 0)
@@ -62,8 +64,11 @@ namespace MTFO.Ext.PartialData.Injects
 
                 if (isChanged)
                 {
-                    Logger.Warning(block.GearJSON);
-                    Logger.Warning(newGearJson);
+                    if (EntryPoint.LogOfflineGearLink)
+                    {
+                        Logger.Warning(block.GearJSON);
+                        Logger.Warning(newGearJson);
+                    }
 
                     block.GearJSON = newGearJson;
                 }

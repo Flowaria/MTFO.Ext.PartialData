@@ -18,15 +18,25 @@ namespace MTFO.Ext.PartialData
     [BepInDependency(InjectLibUtil.PLUGIN_GUID, BepInDependency.DependencyFlags.SoftDependency)]
     internal class EntryPoint : BasePlugin
     {
+        public static bool LogAddBlock = false;
+        public static bool LogEditBlock = true;
+        public static bool LogOfflineGearLink = false;
+        public static bool LogInjectLibLink = false;
+        public static bool LogDebugs = false;
+
         public override void Load()
         {
             InjectLibUtil.Setup();
             MTFOUtil.Setup();
 
             Logger.LogInstance = Log;
-            var useDevMsg = Config.Bind(new ConfigDefinition("Logging", "UseLog"), false, new ConfigDescription("Using Log Message for Debug?"));
+            LogDebugs = Config.Bind(new ConfigDefinition("Logging", "Log Debug Messages"), false, new ConfigDescription("Using Debug Log Messages?")).Value;
+            LogAddBlock = Config.Bind(new ConfigDefinition("Logging", "Log AddBlock"), false, new ConfigDescription("Using Log Message for AddBlock?")).Value;
+            LogEditBlock = Config.Bind(new ConfigDefinition("Logging", "Log EditBlock"), true, new ConfigDescription("Using Log Message for Editing Block (Mostly by LiveEdit)?")).Value;
+            LogOfflineGearLink = Config.Bind(new ConfigDefinition("Logging", "Log OfflineGear Links"), false, new ConfigDescription("Using Log Message for Linking GUID for OfflineGearJSON?")).Value;
+            LogInjectLibLink = Config.Bind(new ConfigDefinition("Logging", "Log InjectLib Links"), false, new ConfigDescription("Using Log Message for Linking GUID for InjectLib?")).Value;
+
             var useLiveEdit = Config.Bind(new ConfigDefinition("Developer", "UseLiveEdit"), false, new ConfigDescription("Using Live Edit?"));
-            Logger.UsingLog = useDevMsg.Value;
             PartialDataManager.CanLiveEdit = useLiveEdit.Value;
 
             if (!DataBlockTypeManager.Initialize())

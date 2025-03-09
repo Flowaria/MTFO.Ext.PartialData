@@ -1,9 +1,7 @@
 ﻿using GameData;
-using Localization;
 using MTFO.Ext.PartialData.Utils;
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 
 namespace MTFO.Ext.PartialData.DataBlockTypes
@@ -31,11 +29,19 @@ namespace MTFO.Ext.PartialData.DataBlockTypes
             if (existingBlock != null)
             {
                 CopyProperties(block, existingBlock);
-                Logger.Warning($"Replaced Block: {existingBlock.persistentID}, {existingBlock.name}");
+                if (EntryPoint.LogEditBlock)
+                {
+                    Logger.Log($"Replaced Block: {existingBlock.persistentID}, {existingBlock.name}");
+                }
                 return;
             }
             GameDataBlockBase<T>.AddBlock(block, -1);
-            Logger.Log($"Added Block: {block.persistentID}, {block.name}");
+
+            if (EntryPoint.LogAddBlock)
+            {
+                Logger.Log($"Added Block: {block.persistentID}, {block.name}");
+            }
+
         }
 
         public void AddJsonBlock(string json)

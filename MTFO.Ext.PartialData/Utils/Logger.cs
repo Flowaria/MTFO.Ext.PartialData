@@ -5,14 +5,12 @@ namespace MTFO.Ext.PartialData.Utils
     internal static class Logger
     {
         public static ManualLogSource LogInstance;
-        public static bool UsingLog = false;
 
         public static void Log(string format, params object[] args) => Log(string.Format(format, args));
 
         public static void Log(string str)
         {
-            if (UsingLog)
-                LogInstance?.Log(LogLevel.Message, str);
+            LogInstance?.Log(LogLevel.Message, str);
         }
 
         public static void Warning(string format, params object[] args) => Warning(string.Format(format, args));
@@ -33,7 +31,8 @@ namespace MTFO.Ext.PartialData.Utils
 
         public static void Debug(string str)
         {
-            LogInstance?.Log(LogLevel.Debug, str);
+            if (EntryPoint.LogDebugs)
+                LogInstance?.Log(LogLevel.Debug, str);
         }
     }
 }

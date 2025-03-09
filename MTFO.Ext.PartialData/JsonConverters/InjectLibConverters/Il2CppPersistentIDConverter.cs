@@ -20,12 +20,15 @@ internal class Il2CppPersistentIDConverter : Il2CppJsonUnmanagedTypeConverter<ui
                 var str = (string)jToken;
                 if (PersistentIDManager.TryGetId(str, out var id))
                 {
-                    Logger.Log($"Linked Valid ID: {str} -> {id}");
                     value = id;
+                    if (EntryPoint.LogInjectLibLink)
+                    {
+                        Logger.Log($"InjectLib_PData: Linked GUID: '{str}' to persistentID: '{id}'");
+                    }
                 }
                 else
                 {
-                    Logger.Error($"InjectLibPData: Unable to find persistent id from GUID: {str}");
+                    Logger.Error($"InjectLib_PData: Unable to find persistent id from GUID: {str}");
                 }
                 break;
         }
