@@ -1,6 +1,7 @@
 ﻿using GTFO.API.Utilities;
 using MTFO.Ext.PartialData.DataBlockTypes;
 using MTFO.Ext.PartialData.DTO;
+using MTFO.Ext.PartialData.Interops;
 using MTFO.Ext.PartialData.JsonConverters;
 using MTFO.Ext.PartialData.Utils;
 using System.Collections.Generic;
@@ -28,10 +29,10 @@ namespace MTFO.Ext.PartialData
             if (Initialized)
                 return false;
 
-            if (!MTFOUtil.IsLoaded)
+            if (!MTFOInterop.IsLoaded)
                 return false;
 
-            PartialDataPath = Path.GetFullPath(Path.Combine(MTFOUtil.GameDataPath, "PartialData"));
+            PartialDataPath = Path.GetFullPath(Path.Combine(MTFOInterop.GameDataPath, "PartialData"));
             if (!Directory.Exists(PartialDataPath))
             {
                 Logger.Error("Unable to setup PartialData::PartialData folder is missing");

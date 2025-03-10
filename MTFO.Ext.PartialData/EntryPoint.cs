@@ -6,6 +6,7 @@ using GameData;
 using HarmonyLib;
 using Localization;
 using MTFO.Ext.PartialData.DataBlockTypes;
+using MTFO.Ext.PartialData.Interops;
 using MTFO.Ext.PartialData.Utils;
 using System.IO;
 
@@ -13,9 +14,9 @@ namespace MTFO.Ext.PartialData
 {
     [BepInPlugin("MTFO.Extension.PartialBlocks", "MTFO pDataBlock", "1.5.1")]
     [BepInProcess("GTFO.exe")]
-    [BepInDependency(MTFOUtil.MTFOGUID, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(MTFOInterop.MTFOGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency(InjectLibUtil.PLUGIN_GUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(InjectLibInterop.PLUGIN_GUID, BepInDependency.DependencyFlags.SoftDependency)]
     internal class EntryPoint : BasePlugin
     {
         public static bool LogAddBlock = false;
@@ -28,8 +29,8 @@ namespace MTFO.Ext.PartialData
         {
             Logger.LogInstance = Log;
 
-            InjectLibUtil.Setup();
-            MTFOUtil.Setup();
+            InjectLibInterop.Setup();
+            MTFOInterop.Setup();
 
             LogDebugs = Config.Bind(new ConfigDefinition("Logging", "Log Debug Messages"), false, new ConfigDescription("Using Debug Log Messages?")).Value;
             LogAddBlock = Config.Bind(new ConfigDefinition("Logging", "Log AddBlock"), false, new ConfigDescription("Using Log Message for AddBlock?")).Value;
@@ -91,7 +92,7 @@ namespace MTFO.Ext.PartialData
 
             Text.TextLocalizationService.SetCurrentLanguage(Text.TextLocalizationService.CurrentLanguage); //Update the TextDataBlock
             Text.UpdateAllTexts();
-            PartialDataManager.WriteAllFile(Path.Combine(MTFOUtil.GameDataPath, "CompiledPartialData"));
+            PartialDataManager.WriteAllFile(Path.Combine(MTFOInterop.GameDataPath, "CompiledPartialData"));
         }
     }
 }

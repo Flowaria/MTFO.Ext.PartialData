@@ -3,9 +3,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace MTFO.Ext.PartialData.Utils
+namespace MTFO.Ext.PartialData.Interops
 {
-    internal static class MTFOUtil
+    internal static class MTFOInterop
     {
         public const string MTFOGUID = "com.dak.MTFO";
         public static string GameDataPath { get; private set; } = string.Empty;

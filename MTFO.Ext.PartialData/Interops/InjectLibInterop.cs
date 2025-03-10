@@ -2,11 +2,12 @@
 using InjectLib.JsonNETInjection;
 using InjectLib.JsonNETInjection.Supports;
 using MTFO.Ext.PartialData.JsonConverters.InjectLibConverters;
+using MTFO.Ext.PartialData.Utils;
 using System;
 
-namespace MTFO.Ext.PartialData.Utils
+namespace MTFO.Ext.PartialData.Interops
 {
-    public static class InjectLibUtil
+    internal static class InjectLibInterop
     {
         public const string PLUGIN_GUID = "GTFO.InjectLib";
 
